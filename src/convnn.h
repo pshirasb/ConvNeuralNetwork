@@ -7,7 +7,7 @@
     #include <RcppArmadillo.h>
 #endif
 
-#define DEBUG
+#define NDEBUG
 
 #ifdef DEBUG
     #define dbg_print(x) cout << "[dbg:" << __LINE__ << "] " << x << endl
@@ -331,15 +331,20 @@ public:
     LinearLayerIter(LinearLayer* l, std::string var) 
         : _l(l) 
         , _v()
+        , _b()
         , _i(0)
         , _j(0)
         , _k(0)
+        , _m(0)
+        , _bflag(1)
     {
         if(var == "w") {
             _v = &(_l->_w);
+            _b = &(_l->_b);
         } else
         if(var == "dw") {
             _v = &(_l->_dw);
+            _b = &(_l->_db);
         } else {
             dbg_print("invalid 'var' param to LinearLayerIter");
         }
@@ -351,9 +356,12 @@ public:
 protected:
     LinearLayer* _l;
     cube*        _v;
+    cube*        _b;
     uword        _i,
                  _j,
-                 _k;
+                 _k,
+                 _m;
+    bool         _bflag;                
 };
 
 class ConvLayerIter : public LayerIter {

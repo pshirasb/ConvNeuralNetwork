@@ -37,20 +37,19 @@ int main(){
    
     cx = randu<cube>(10,10,1);
     cube cy(10,10,50,fill::randu);
-
-
-    NeuralNet nn;
-    nn.add( new InputLayer(cx.n_rows, cx.n_cols, cx.n_slices) );
-    nn.add( new ConvLayer(5,50) );
-    //nn.add( new LogitLayer());
-    //nn.add( new LinearLayer(10) );
-    nn.add( new LogitLayer());
-    nn.add( new MSE() );
-    
-    cout << nn.checkGradients(cx,cy) << endl;
     */
 
-     
+    mat x1 = {{1,2,3},{4,5,6},{7,8,9}};
+    cube x(3,3,2); 
+    x.slice(0) = (x1);
+    x.slice(1) = x1 * 2;
+    cout << x << endl;
+    cout << vectorise(x) << endl;
+    cout << reshape(vectorise(x), 3, 3, 2) << endl;
+
+
+    return 0;
+    /* 
     mat data;
     data.load("../data/mnist.csv", csv_ascii);
     mat x = data.tail_cols(data.n_cols - 1);
@@ -82,7 +81,7 @@ int main(){
     //nn.train(cx, cy, 0.01, 2); 
     //cout << "Gradient Accuracy = " << nn.checkGradients(cx.slices(0,0),cy.slices(0,0)) << endl;
 
-
+*/
     /*
     mat x = {1,1,1,0,0,1,0,0,1,1};
     x.reshape(2,4);

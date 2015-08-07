@@ -233,7 +233,7 @@ TYPED_TEST(SingleLayerGradientTest, DeltaTest) {
                 cube y_plus  = p.forward(x);
                 x(i,j,k) = x(i,j,k) - (2 * epsilon);
                 cube y_minus = p.forward(x);
-                x(i,j,k) = x(i,k,k) + epsilon;
+                x(i,j,k) = x(i,j,k) + epsilon;
 
                 cube approx_delta = (y_plus - y_minus) / (2 * epsilon);
                 EXPECT_NEAR(accu(approx_delta), pred_delta(i,j,k), 
@@ -397,7 +397,7 @@ TYPED_TEST(MultiLayerGradientTest, DeltaTest) {
                 double y_minus  = this->_cf->cost(
                                 this->_in->forward(this->_x),
                                 this->_y);
-                this->_x(i,j,k) = this->_x(i,k,k) + epsilon;
+                this->_x(i,j,k) = this->_x(i,j,k) + epsilon;
 
                 double approx_delta = (y_plus - y_minus) / (2 * epsilon);
                 EXPECT_NEAR((approx_delta), pred_delta(i,j,k), 
@@ -406,26 +406,22 @@ TYPED_TEST(MultiLayerGradientTest, DeltaTest) {
         }
     }
 }
-/*
+
 TYPED_TEST(MultiLayerGradientTest, GradientTest) {
     
-    const int    row     = 5;
-    const int    col     = 5;
-    const int    slices  = 3;
     const double epsilon = 0.000001;
-    InputLayer p(row,col,slices);
+    this->_y = randu<cube>(this->_out->getActivationCube().n_rows,
+                this->_out->getActivationCube().n_cols,
+                this->_out->getActivationCube().n_slices
+                );
+    cube y    = this->_in->forward(this->_x);
 
-    p.connect(this->_l);
-    cube x(row, col, slices, fill::randu);
-    cube y = p.forward(x);
-    
-    cube pred_delta = this->_l->backward(
-                                 ones<cube>(
-                                   this->_l->getActivationCube().n_rows,
-                                   this->_l->getActivationCube().n_cols,
-                                   this->_l->getActivationCube().n_slices
-                                 )
-                                );
+    cube pred_delta = this->_out->backward(
+                                 this->_cf->gradient(y, this->_y));
+
+    int row = this->_row;
+    int col = this->_col;
+    int slices = this->_slices;
     // In case the shape doesn't match
     pred_delta.reshape(row,col,slices);
 
@@ -436,15 +432,19 @@ TYPED_TEST(MultiLayerGradientTest, GradientTest) {
             double old_w  = w_itr->get();
             double old_dw = dw_itr->get();
             w_itr->set(old_w + epsilon);
-            cube y_plus  = p.forward(x);
+            double y_plus  = this->_cf->cost(
+                                this->_in->forward(this->_x),
+                                this->_y);
 
             w_itr->set(old_w - epsilon);
-            cube y_minus = p.forward(x);
+            double y_minus = this->_cf->cost(
+                                this->_in->forward(this->_x),
+                                this->_y);
 
             w_itr->set(old_w);
             dw_itr->set(old_dw);
 
-            double approx = accu((y_plus - y_minus) / (2 * epsilon));
+            double approx = ((y_plus - y_minus) / (2 * epsilon));
             EXPECT_NEAR(approx , old_dw, 1e-5);
 
         } while(w_itr->next() && dw_itr->next());
@@ -454,7 +454,7 @@ TYPED_TEST(MultiLayerGradientTest, GradientTest) {
     }
 
 }
-*/
+
 /**********************************************************
  * TwoLayerGradientTest Case
 ***********************************************************/
@@ -477,11 +477,11 @@ protected:
     }
     
     Layer*        _in ;
-    Layer*        _out;
     Layer*        _l  ;
-    static const int    _row     = 5;
-    static const int    _col     = 5;
-    static const int    _slices  = 3;
+    Layer*        _out;
+    static const int    _row     = 3;
+    static const int    _col     = 3;
+    static const int    _slices  = 5;
     cube _x;
     cube _y;
 };
@@ -506,6 +506,7 @@ TYPED_TEST(TwoLayerGradientTest, DeltaTest) {
     int slices = this->_slices;
 
     // In case the shape doesn't match
+    ASSERT_EQ(pred_delta.n_elem,(row * col * slices));
     pred_delta.reshape(row,col,slices);
 
     for(int i=0; i < row; i++) {
@@ -517,7 +518,7 @@ TYPED_TEST(TwoLayerGradientTest, DeltaTest) {
                 this->_x(i,j,k) = this->_x(i,j,k) - (2 * epsilon);
                 cube y_minus  = this->_in->forward(this->_x);
                                 
-                this->_x(i,j,k) = this->_x(i,k,k) + epsilon;
+                this->_x(i,j,k) = this->_x(i,j,k) + epsilon;
 
                 cube approx_delta = (y_plus - y_minus) / (2 * epsilon);
                 EXPECT_NEAR(accu(approx_delta), pred_delta(i,j,k), 

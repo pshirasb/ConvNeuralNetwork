@@ -310,8 +310,11 @@ cube LogitLayer::backward(cube delta){
     // element-wise multiplication
     
     //reshape delta into _a's dimensions
-    delta.reshape(_a.n_rows, _a.n_cols, _a.n_slices);
-    
+    //delta.reshape(_a.n_rows, _a.n_cols, _a.n_slices);
+    dbg_assert(_a.n_rows == delta.n_rows);
+    dbg_assert(_a.n_cols == delta.n_cols);
+    dbg_assert(_a.n_slices == delta.n_slices);
+
     dbg_print("backward at logit layer(" << _units << ")");
     cube grad = delta % _a % (1.00f - _a);
     
@@ -470,31 +473,41 @@ LayerIter* ConvLayer::createIterator(std::string value) {
 ***********************************************************************/
 int LinearLayerIter::next() {
 
+    //cout << "(" << _i << "," 
+                //<< _j << ","
+                //<< _k << ","
+                //<< _m << ")"
+                //<< endl;
+
     // col-wise access
     if(_bflag) {
-        _bflag = 0;
-        return(1);
+        _m++;   
+        if(_m >= _b->n_rows) {
+            _m = 0;
+            _bflag = 0;
+        }
     }
-
-    _i++;
-    if(_i >= _v->n_rows) {
-        _i = 0;
-        _j++;
-    }
-    if(_j >= _v->n_cols) {
-        _j = 0;
-        _k++;
-    }
-    if(_k >= _v->n_slices) {
-        reset();
-        return(0);
+    else {
+        _i++;
+        if(_i >= _v->n_rows) {
+            _i = 0;
+            _j++;
+        }
+        if(_j >= _v->n_cols) {
+            _j = 0;
+            _k++;
+        }
+        if(_k >= _v->n_slices) {
+            reset();
+            return(0);
+        }
     }
     return(1);
 }
 
 double LinearLayerIter::get() {
     if(_bflag) {
-        return((*_b)(0,0,_m));
+        return((*_b)(_m,0,0));
     } 
     else { 
         return((*_v)(_i,_j,_k));
@@ -503,7 +516,7 @@ double LinearLayerIter::get() {
 
 void LinearLayerIter::set(double value)  {
     if(_bflag) {
-        (*_b)(0,0,_m) = value;
+        (*_b)(_m,0,0) = value;
     }
     else {
         (*_v)(_i,_j,_k) = value;
@@ -513,6 +526,7 @@ void LinearLayerIter::reset()      {
     _i =  0;
     _j =  0;
     _k =  0;
+    _m =  0;
     _bflag = 1;
 }
 
