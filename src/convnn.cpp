@@ -15,7 +15,7 @@ bool NeuralNet::add(Layer* l){
         return(1);
     }
     
-    _layers_tail = l;
+    _layers_tail = l; 
     
     if(_layers_head == 0) {
         _layers_head = l;

@@ -28,6 +28,7 @@ bool armaEQ(T a, T b) {
     }
 }
 
+// Convert [n,m] matrix to [n,m,1] cube
 cube mat2cube(mat a) {
     cube result = zeros<cube>(a.n_rows, a.n_cols, 1);
     result.slice(0) = a;
@@ -528,3 +529,6 @@ TYPED_TEST(TwoLayerGradientTest, DeltaTest) {
     }
 }
 
+/**********************************************************
+ * NeuralNetTest Case
+***********************************************************/
