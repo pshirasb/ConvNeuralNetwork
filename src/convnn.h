@@ -404,6 +404,7 @@ protected:
 };
 
 
+mat class2mat(const mat& x) ;
 mat conv2d(mat, mat);
 mat conv2d(cube,cube);
 mat  addPadding(mat  x, int ksize);

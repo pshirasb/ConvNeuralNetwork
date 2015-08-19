@@ -532,3 +532,28 @@ TYPED_TEST(TwoLayerGradientTest, DeltaTest) {
 /**********************************************************
  * NeuralNetTest Case
 ***********************************************************/
+TEST(NeuralNetTest, AddLayerTest) {
+
+    NeuralNet nn;
+    InputLayer  a(2,3,4);
+    ConvLayer   b(3,10);
+    LinearLayer c(5);
+    LogitLayer  d;
+    MSE         e;
+
+    nn.add(&a);
+    nn.add(&b);
+    nn.add(&c);
+    nn.add(&d);
+    nn.add(&e);
+
+    EXPECT_TRUE(a.next == &b);
+    EXPECT_TRUE(b.next == &c);
+    EXPECT_TRUE(c.next == &d);
+    EXPECT_TRUE(d.next == NULL);
+    EXPECT_TRUE(a.prev == NULL);
+    EXPECT_TRUE(b.prev == &a);
+    EXPECT_TRUE(c.prev == &b);
+    EXPECT_TRUE(d.prev == &c);
+
+}

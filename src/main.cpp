@@ -11,17 +11,6 @@ RcppExport SEXP Rconv2d(SEXP x, SEXP k, SEXP p) {
 }
 #endif
 
-mat class2mat(const mat& x) {
-    
-    dbg_assert(x.n_cols == 1);
-    mat result = mat(x.n_rows, 10, fill::zeros);
-
-    for(int i = 0; i < x.n_rows; i++) {
-        result(i, x(i,0)) = 1;
-    }
-    return(result);
-}
-
 
 int main(){
 
