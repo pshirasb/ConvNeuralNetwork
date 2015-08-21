@@ -3,9 +3,9 @@
 # compiler
 CC = g++
 # pre-processor settings (-I, -D, etc)
-CPPFLAGS = -D_EXEC -std=c++0x 
+CPPFLAGS = -D_EXEC -std=c++0x -g 
 # compiler settings
-CXXFLAGS = -Wall -D_EXEC -fopenmp -g 
+CXXFLAGS = -Wall -D_EXEC -fopenmp
 # linker settings
 LDFLAGS  = -larmadillo
 # linker settings for test
