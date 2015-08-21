@@ -14,31 +14,25 @@ RcppExport SEXP Rconv2d(SEXP x, SEXP k, SEXP p) {
 
 int main(){
 
-    /*    
-    mat x = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
-             24,25};
-    x.reshape(5,5);
+    mat x = {{1,2,3,4,0,4},
+             {5,6,7,8,1,5},
+             {3,4,5,6,9,3},
+             {4,6,7,8,9,5},
+             {3,3,3,1,2,3},
+             {1,9,2,7,8,1}};
 
-    mat y = {4,5};
+    mat mask = zeros<mat>(5,5);
 
-    cube cx(5,5,1);
-    cx.slice(0) = x;
-   
-    cx = randu<cube>(10,10,1);
-    cube cy(10,10,50,fill::randu);
-    */
+    mat down = maxDownSample(x, 2, mask) ;
 
-    mat x1 = {{1,2,3},{4,5,6},{7,8,9}};
-    cube x(3,3,2); 
-    x.slice(0) = (x1);
-    x.slice(1) = x1 * 2;
     cout << x << endl;
-    cout << vectorise(x) << endl;
-    cout << reshape(vectorise(x), 3, 3, 2) << endl;
-
-
+    cout << down << endl;
+    cout << mask << endl;
+    cout << maxUpSample(down, 2, mask) << endl;
     return 0;
-    /* 
+
+
+    /*
     mat data;
     data.load("../data/mnist.csv", csv_ascii);
     mat x = data.tail_cols(data.n_cols - 1);
@@ -54,23 +48,24 @@ int main(){
     
     cout << data.n_rows << ", " << data.n_cols << endl;
 
+    cube xx = reshape(cx.slices(0,0), 28, 28, 1);
 
     NeuralNet nn;
     nn.add( new InputLayer(cx.n_rows, cx.n_cols, 1));
+    nn.add( new ConvLayer(3, 10) );
     nn.add( new LinearLayer(10) );
     //nn.add( new LogitLayer() );
     //nn.add( new LinearLayer(10) );
-    //nn.add( new LogitLayer() );
+    nn.add( new LogitLayer() );
     nn.add( new MSE() );
     //nn.printAll();
     //cout << nn.pred(x) << endl;
     //nn.backprop(x,y);
-    cout << "Gradient Accuracy = " << nn.checkGradients(cx.slices(0,0),cy.slices(0,0)) << endl;
+    cout << "Gradient Accuracy = " << nn.checkGradients(xx,cy.slices(0,0)) << endl;
     //cout << nn.pred(cx.slices(0,0)) << endl;
     //nn.train(cx, cy, 0.01, 2); 
     //cout << "Gradient Accuracy = " << nn.checkGradients(cx.slices(0,0),cy.slices(0,0)) << endl;
-
-*/
+    */
     /*
     mat x = {1,1,1,0,0,1,0,0,1,1};
     x.reshape(2,4);
