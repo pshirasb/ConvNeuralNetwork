@@ -152,6 +152,7 @@ public:
         return(0);
     }
 
+    // TODO: this is a problem, need to get rid of this
     virtual cube& getWeightMat()     = 0;
     virtual cube& getDWeightMat()    = 0;
     virtual cube& getActivationCube() = 0;
@@ -231,8 +232,8 @@ public:
     
 private:
     cube    _w;     /* Weight matrix          */
-    cube    _dw;    /* Gradient matrix        */    
-    cube    _a;     /* Activation patterns    */
+    cube    _dw;    /* Gradient matrix        */
+    cube    _a;     /* Activation patterns */
 
 };
 
@@ -312,9 +313,25 @@ private:
 
 };
 
-// Sumbsampling/max-pooling layer
-class maxPoolLayer : public ConvLayer {
+// Subsampling/max-pooling layer
+class maxPoolLayer : public Layer {
+public:
+    maxPoolLayer(int sample_size) : _sample_size(sample_size) {}
 
+    cube backward (cube x) override;
+    cube forward  (cube x) override;
+
+    bool connectBack (Layer *l) override;      
+    
+    // TODO: fix the following
+    cube& getWeightMat()      override { return _a; }
+    cube& getDWeightMat()     override { return _a; }
+    cube& getActivationCube() override { return _a; }
+
+private:
+    cube _a;             /* Activation cube */
+    cube _mask;          /* max mask cube */
+    int  _sample_size;   /* Subsampling window size */
 };
 
 // Iterator Classes
@@ -409,4 +426,6 @@ mat conv2d(mat, mat);
 mat conv2d(cube,cube);
 mat  addPadding(mat  x, int ksize);
 cube addPadding(cube x, int ksize);
+mat maxUpSample(mat source, int stride, const mat& retnMask);
+mat maxDownSample(mat source, int stride, mat& retnMask);
 #endif

@@ -56,6 +56,10 @@ template <>
 Layer* createLayer<ConvLayer>(int size) {
     return new ConvLayer(3,size);
 }
+template <>
+Layer* createLayer<maxPoolLayer>(int size) {
+    return new maxPoolLayer(3);
+}
 
 template <class T>
 class BasicLayerTest: public ::testing::Test {
@@ -69,7 +73,7 @@ protected:
 
 using testing::Types;
 
-typedef Types<LogitLayer,LinearLayer,ConvLayer> LayerTypes;
+typedef Types<LogitLayer,LinearLayer,ConvLayer,maxPoolLayer> LayerTypes;
 TYPED_TEST_CASE(BasicLayerTest, LayerTypes);
 
 TYPED_TEST(BasicLayerTest, InitializationTest) {
@@ -480,9 +484,9 @@ protected:
     Layer*        _in ;
     Layer*        _l  ;
     Layer*        _out;
-    static const int    _row     = 3;
-    static const int    _col     = 3;
-    static const int    _slices  = 5;
+    static const int    _row     = 9;
+    static const int    _col     = 9;
+    static const int    _slices  = 9;
     cube _x;
     cube _y;
 };
@@ -555,5 +559,31 @@ TEST(NeuralNetTest, AddLayerTest) {
     EXPECT_TRUE(b.prev == &a);
     EXPECT_TRUE(c.prev == &b);
     EXPECT_TRUE(d.prev == &c);
+}
 
+TEST(NeuralNetTest, ComputeCostTest) {
+
+    NeuralNet nn;
+    InputLayer  a(7,7,3);
+    ConvLayer   b(3,10);
+    LinearLayer c(5);
+    LogitLayer  d;
+    MSE         e;
+  
+    nn.add(&a);
+    nn.add(&b);
+    nn.add(&c);
+    nn.add(&d);
+    nn.add(&e);
+
+    cube x(7,7,3, fill::randn);
+    cube y(5,1,1, fill::randu);
+
+    cube prediction = a.forward(x);
+    double prediction_cost = e.cost(prediction, y);
+    
+    a.forward(zeros<cube>(7,7,3));  // Clear activation values
+
+    EXPECT_NEAR(nn.computeCost(x,y), prediction_cost, 1e-5);
+    
 }
